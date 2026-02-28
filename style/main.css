@@ -1,5 +1,3 @@
-@import url(fonts/clear-sans.css);
-
 /* =========================
    Responsive sizing (single source of truth)
    ========================= */
@@ -608,3 +606,4 @@ h1.title small {
     margin-top: 24px;
   }
 }
+
