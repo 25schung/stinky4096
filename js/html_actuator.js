@@ -1,10 +1,21 @@
 function HTMLActuator() {
+  // DOM
   this.tileContainer    = document.querySelector(".tile-container");
   this.scoreContainer   = document.querySelector(".score-container");
   this.bestContainer    = document.querySelector(".best-container");
+  this.bestPoints       = document.querySelector(".best-points");
   this.messageContainer = document.querySelector(".game-message");
+  this.sharingContainer = document.querySelector(".score-sharing");
 
-  this.score = 0;
+  // State
+  this.score  = 0;
+  this.points = 0;
+
+  // Config: change these in ONE place
+  this.MAX_MERGE_TILE_VALUE = 4096;   // cap for merge logic (render uses it for styling/message)
+  this.SUPER_TILE_THRESHOLD = 4096;   // tiles strictly greater than this get tile-super
+  this.IMAGE_PATH = "img/";
+  this.IMAGE_EXT  = ".jpg";
 }
 
 HTMLActuator.prototype.actuate = function (grid, metadata) {
@@ -15,66 +26,67 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
 
     grid.cells.forEach(function (column) {
       column.forEach(function (cell) {
-        if (cell) {
-          self.addTile(cell);
-        }
+        if (cell) self.addTile(cell);
       });
     });
 
-    self.updateScore(metadata.score);
-    self.updateBestScore(metadata.bestScore);
+    self.updateScore(metadata.score, metadata.points);
+    self.updateBestScore(metadata.bestScore, metadata.bestPoints);
 
     if (metadata.terminated) {
       if (metadata.over) {
-        self.message(false); // You lose
+        self.message(false); // lose
       } else if (metadata.won) {
-        self.message(true); // You win!
+        // If your template sets `won` when a target is reached,
+        // this will show "You win!" at that target (you should set that target to 4096 in logic).
+        self.message(true);
       }
     }
-
   });
 };
 
-// Continues the game (both restart and keep playing)
-HTMLActuator.prototype.continue = function () {
+HTMLActuator.prototype.continueGame = function () {
   this.clearMessage();
 };
 
 HTMLActuator.prototype.clearContainer = function (container) {
-  while (container.firstChild) {
-    container.removeChild(container.firstChild);
-  }
+  while (container.firstChild) container.removeChild(container.firstChild);
 };
 
 HTMLActuator.prototype.addTile = function (tile) {
   var self = this;
 
-  var wrapper   = document.createElement("div");
-  var inner     = document.createElement("div");
-  var position  = tile.previousPosition || { x: tile.x, y: tile.y };
-  var positionClass = this.positionClass(position);
+  var wrapper  = document.createElement("div");
+  var inner    = document.createElement("div");
+  var img      = document.createElement("img");
 
-  // We can't use classlist because it somehow glitches when replacing classes
-  var classes = ["tile", "tile-" + tile.value, positionClass];
-
-  if (tile.value > 2048) classes.push("tile-super");
+  var position = tile.previousPosition || { x: tile.x, y: tile.y };
+  var classes  = this.getTileClasses(tile, position);
 
   this.applyClasses(wrapper, classes);
 
   inner.classList.add("tile-inner");
-  inner.textContent = tile.value;
+
+  // Prefer image; fallback to text if missing image file
+  img.src = this.IMAGE_PATH + tile.value + this.IMAGE_EXT;
+  img.alt = String(tile.value);
+  img.onerror = function () {
+    // fallback: show value as text if image doesn't exist
+    inner.textContent = String(tile.value);
+    img.remove();
+  };
+
+  inner.appendChild(img);
 
   if (tile.previousPosition) {
-    // Make sure that the tile gets rendered in the previous position first
     window.requestAnimationFrame(function () {
-      classes[2] = self.positionClass({ x: tile.x, y: tile.y });
-      self.applyClasses(wrapper, classes); // Update the position
+      classes = self.getTileClasses(tile, { x: tile.x, y: tile.y });
+      self.applyClasses(wrapper, classes);
     });
   } else if (tile.mergedFrom) {
     classes.push("tile-merged");
     this.applyClasses(wrapper, classes);
 
-    // Render the tiles that merged
     tile.mergedFrom.forEach(function (merged) {
       self.addTile(merged);
     });
@@ -83,11 +95,20 @@ HTMLActuator.prototype.addTile = function (tile) {
     this.applyClasses(wrapper, classes);
   }
 
-  // Add the inner part of the tile to the wrapper
   wrapper.appendChild(inner);
-
-  // Put the tile on the board
   this.tileContainer.appendChild(wrapper);
+};
+
+HTMLActuator.prototype.getTileClasses = function (tile, position) {
+  var positionClass = this.positionClass(position);
+
+  // base classes
+  var classes = ["tile", "tile-" + tile.value, positionClass];
+
+  // only mark as "super" once it's beyond your cap (or threshold)
+  if (tile.value > this.SUPER_TILE_THRESHOLD) classes.push("tile-super");
+
+  return classes;
 };
 
 HTMLActuator.prototype.applyClasses = function (element, classes) {
@@ -103,25 +124,32 @@ HTMLActuator.prototype.positionClass = function (position) {
   return "tile-position-" + position.x + "-" + position.y;
 };
 
-HTMLActuator.prototype.updateScore = function (score) {
+HTMLActuator.prototype.updateScore = function (score, points) {
   this.clearContainer(this.scoreContainer);
 
-  var difference = score - this.score;
-  this.score = score;
+  var pointDifference = points - this.points;
 
-  this.scoreContainer.textContent = this.score;
+  this.score  = score;
+  this.points = points;
 
-  if (difference > 0) {
-    var addition = document.createElement("div");
-    addition.classList.add("score-addition");
-    addition.textContent = "+" + difference;
+  // top-left display (your template uses points)
+  this.scoreContainer.textContent = this.points;
 
-    this.scoreContainer.appendChild(addition);
+  if (pointDifference > 0) {
+    var punti = document.createElement("div");
+    punti.classList.add("score-addition");
+    punti.textContent = "+" + pointDifference;
+    this.scoreContainer.appendChild(punti);
   }
 };
 
-HTMLActuator.prototype.updateBestScore = function (bestScore) {
-  this.bestContainer.textContent = bestScore;
+HTMLActuator.prototype.updateBestScore = function (bestScore, bestPoints) {
+  // top-right display (your template uses bestPoints)
+  this.bestContainer.textContent = bestPoints;
+
+  // second row right - name mapping
+  this.bestPoints.textContent =
+    bestScore > 0 ? getTileName(bestScore) : getTileName(2);
 };
 
 HTMLActuator.prototype.message = function (won) {
@@ -133,7 +161,6 @@ HTMLActuator.prototype.message = function (won) {
 };
 
 HTMLActuator.prototype.clearMessage = function () {
-  // IE only takes one value to remove at a time.
   this.messageContainer.classList.remove("game-won");
   this.messageContainer.classList.remove("game-over");
 };
