@@ -558,10 +558,21 @@ h1.title small {
   }
 
   .crown-hitbox {
-    left: 18%;
-    top: 10%;
-    width: 34%;
-    height: 34%;
+    position: absolute;
+
+    /* centered over the head */
+    left: 50%;
+    transform: translateX(-50%);
+
+    /* crown vertical position (tuned to your screenshot) */
+    top: 6%;
+
+    /* size of clickable area */
+    width: 42%;
+    height: 18%;
+
+    z-index: 50;
+    display: block;
   }
 
   h1.title {
@@ -606,4 +617,5 @@ h1.title small {
     margin-top: 24px;
   }
 }
+
 
