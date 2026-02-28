@@ -1,6 +1,19 @@
 @import url(fonts/clear-sans.css);
 
 /* =========================
+   Responsive sizing (single source of truth)
+   ========================= */
+:root {
+  --board: 500px;
+  --pad: 15px;
+  --gap: 15px;
+  --grid: 4;
+
+  --cell: calc((var(--board) - (2 * var(--pad)) - ((var(--grid) - 1) * var(--gap))) / var(--grid));
+  --step: calc(var(--cell) + var(--gap));
+}
+
+/* =========================
    Base
    ========================= */
 html,
@@ -9,8 +22,12 @@ body {
   padding: 0;
   background: #acdf87;
   color: #1e5631;
-  font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+
+  /* Helvetica first (with sensible fallbacks) */
+  font-family: Helvetica, Arial, "Helvetica Neue", sans-serif;
+
   font-size: 18px;
+  overflow-x: hidden;
 }
 
 body {
@@ -42,10 +59,10 @@ hr {
 }
 
 /* =========================
-   Main container (board is always 500px centered)
+   Main container
    ========================= */
 .container {
-  width: 500px;
+  width: var(--board);
   margin: 0 auto;
   position: relative;
 }
@@ -63,7 +80,6 @@ hr {
 .title-wrap {
   position: relative;
   width: 480px;
-  /* matches title image width */
   margin: 0 auto;
 }
 
@@ -79,29 +95,16 @@ hr {
   pointer-events: none;
 }
 
-/* Clickable rectangle over crown */
 .crown-hitbox {
   position: absolute;
   left: 95px;
-  /* adjust to your crown */
   top: 10px;
-  /* adjust to your crown */
   width: 190px;
-  /* adjust to your crown */
   height: 95px;
-  /* adjust to your crown */
   z-index: 5;
   cursor: pointer;
   text-decoration: none;
-  /*outline: 6px solid red !important;
-  z-index: 999999 !important;
-  pointer-events: auto !important;
-  display: block !important;*/
 }
-
- /*(Optional debug)
-.title-wrap { outline: 4px dashed blue !important; }*/
-
 
 h1.title {
   position: relative;
@@ -115,20 +118,18 @@ h1.title small {
   font-size: 60px;
 }
 
-/* Move restart + board down together */
-.play-area{
-  margin-top: 387px;   /* adjust: 40/60/80 */
+.play-area {
+  margin-top: 387px;
 }
 
 /* =========================
-   Restart button row (original: top-right above board)
+   Restart button row
    ========================= */
 .above-game {
-  width: 500px;
+  width: var(--board);
   margin: 0 auto;
   position: relative;
   height: 40px;
-  /* reserves space so nothing overlaps */
 }
 
 .restart-button {
@@ -148,21 +149,16 @@ h1.title small {
 
 /* =========================
    Board + side scores layout
-   - board stays centered because .container is 500px
-   - sidebar is positioned OUTSIDE the 500px container
    ========================= */
 .game-row {
   position: relative;
-  width: 500px;
-  margin: 0 auto;
+  width: var(--board);
   margin: 10px auto 0;
 }
 
-/* Sidebar floats outside to the right without changing centering */
 .side-scores {
   position: absolute;
   top: 0;
-  /* align with top of board */
   left: calc(100% + 18px);
   width: 120px;
   display: flex;
@@ -170,7 +166,6 @@ h1.title small {
   gap: 14px;
 }
 
-/* Score boxes (sidebar) */
 .side-scores .score-container,
 .side-scores .best-container {
   position: relative;
@@ -200,25 +195,12 @@ h1.title small {
   pointer-events: none;
 }
 
-.side-scores .score-container::after {
-  content: "Stink";
-}
+.side-scores .score-container::after { content: "Stink"; }
+.side-scores .best-container::after { content: "Max Stink"; }
 
-.side-scores .best-container::after {
-  content: "Max Stink";
-}
-
-/* floating +points animation (only inside sidebar score box) */
 @keyframes move-up {
-  0% {
-    top: 25px;
-    opacity: 1;
-  }
-
-  100% {
-    top: -50px;
-    opacity: 0;
-  }
+  0% { top: 25px; opacity: 1; }
+  100% { top: -50px; opacity: 0; }
 }
 
 .side-scores .score-addition {
@@ -235,9 +217,8 @@ h1.title small {
   animation: move-up 600ms ease-in both;
 }
 
-/* Max Emily under the board */
 .bottom-stats {
-  width: 500px;
+  width: var(--board);
   margin: 14px auto 0;
 }
 
@@ -271,22 +252,17 @@ h1.title small {
    Game board
    ========================= */
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .game-container {
   position: relative;
-  padding: 15px;
+  padding: var(--pad);
   background: #76ba1b;
   border-radius: 6px;
-  width: 500px;
-  height: 500px;
+  width: var(--board);
+  height: var(--board);
   box-sizing: border-box;
 
   -webkit-touch-callout: none;
@@ -332,18 +308,14 @@ h1.title small {
   margin-left: 9px;
 }
 
-.game-container .game-message a.keep-playing-button {
-  display: none;
-}
+.game-container .game-message a.keep-playing-button { display: none; }
 
 .game-container .game-message.game-won {
   background: rgba(88, 46, 116, 0.5);
   color: #fff;
 }
 
-.game-container .game-message.game-won a.keep-playing-button {
-  display: inline-block;
-}
+.game-container .game-message.game-won a.keep-playing-button { display: inline-block; }
 
 .game-container .game-message.game-won,
 .game-container .game-message.game-over {
@@ -356,29 +328,25 @@ h1.title small {
 .grid-container {
   position: absolute;
   z-index: 1;
-  top: 15px;
-  left: 15px;
+  top: var(--pad);
+  left: var(--pad);
 
   display: grid;
-  grid-template-columns: repeat(4, 106.25px);
-  grid-template-rows: repeat(4, 106.25px);
-  gap: 15px;
+  grid-template-columns: repeat(4, var(--cell));
+  grid-template-rows: repeat(4, var(--cell));
+  gap: var(--gap);
 }
 
-/* Your HTML has .grid-row wrappers — make them disappear in layout */
 .grid-row {
   display: contents;
   margin: 0;
 }
 
-/* Grid cells become true grid items */
 .grid-cell {
-  width: 106.25px;
-  height: 106.25px;
+  width: var(--cell);
+  height: var(--cell);
   margin: 0;
-  /* IMPORTANT: gap handles spacing */
   float: none;
-  /* IMPORTANT: kill float layout */
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.35);
 }
@@ -389,80 +357,14 @@ h1.title small {
 .tile-container {
   position: absolute;
   z-index: 2;
-  top: 15px;
-  left: 15px;
+  top: var(--pad);
+  left: var(--pad);
 }
 
 .tile,
 .tile .tile-inner {
-  width: 107px;
-  height: 107px;
-  line-height: 116.25px;
-}
-
-/* Positions (exact numbers) */
-.tile.tile-position-1-1 {
-  transform: translate(0px, 0px);
-}
-
-.tile.tile-position-1-2 {
-  transform: translate(0px, 121px);
-}
-
-.tile.tile-position-1-3 {
-  transform: translate(0px, 242px);
-}
-
-.tile.tile-position-1-4 {
-  transform: translate(0px, 363px);
-}
-
-.tile.tile-position-2-1 {
-  transform: translate(121px, 0px);
-}
-
-.tile.tile-position-2-2 {
-  transform: translate(121px, 121px);
-}
-
-.tile.tile-position-2-3 {
-  transform: translate(121px, 242px);
-}
-
-.tile.tile-position-2-4 {
-  transform: translate(121px, 363px);
-}
-
-.tile.tile-position-3-1 {
-  transform: translate(242px, 0px);
-}
-
-.tile.tile-position-3-2 {
-  transform: translate(242px, 121px);
-}
-
-.tile.tile-position-3-3 {
-  transform: translate(242px, 242px);
-}
-
-.tile.tile-position-3-4 {
-  transform: translate(242px, 363px);
-}
-
-.tile.tile-position-4-1 {
-  transform: translate(363px, 0px);
-}
-
-.tile.tile-position-4-2 {
-  transform: translate(363px, 121px);
-}
-
-.tile.tile-position-4-3 {
-  transform: translate(363px, 242px);
-}
-
-.tile.tile-position-4-4 {
-  transform: translate(363px, 363px);
+  width: var(--cell);
+  height: var(--cell);
 }
 
 .tile {
@@ -477,139 +379,73 @@ h1.title small {
   font-weight: 700;
   z-index: 10;
   font-size: 55px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tile .tile-inner img {
   width: 100%;
   height: 100%;
+  display: block;
 }
+
+/* Positions */
+.tile.tile-position-1-1 { transform: translate(calc(var(--step) * 0), calc(var(--step) * 0)); }
+.tile.tile-position-1-2 { transform: translate(calc(var(--step) * 0), calc(var(--step) * 1)); }
+.tile.tile-position-1-3 { transform: translate(calc(var(--step) * 0), calc(var(--step) * 2)); }
+.tile.tile-position-1-4 { transform: translate(calc(var(--step) * 0), calc(var(--step) * 3)); }
+
+.tile.tile-position-2-1 { transform: translate(calc(var(--step) * 1), calc(var(--step) * 0)); }
+.tile.tile-position-2-2 { transform: translate(calc(var(--step) * 1), calc(var(--step) * 1)); }
+.tile.tile-position-2-3 { transform: translate(calc(var(--step) * 1), calc(var(--step) * 2)); }
+.tile.tile-position-2-4 { transform: translate(calc(var(--step) * 1), calc(var(--step) * 3)); }
+
+.tile.tile-position-3-1 { transform: translate(calc(var(--step) * 2), calc(var(--step) * 0)); }
+.tile.tile-position-3-2 { transform: translate(calc(var(--step) * 2), calc(var(--step) * 1)); }
+.tile.tile-position-3-3 { transform: translate(calc(var(--step) * 2), calc(var(--step) * 2)); }
+.tile.tile-position-3-4 { transform: translate(calc(var(--step) * 2), calc(var(--step) * 3)); }
+
+.tile.tile-position-4-1 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 0)); }
+.tile.tile-position-4-2 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 1)); }
+.tile.tile-position-4-3 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 2)); }
+.tile.tile-position-4-4 { transform: translate(calc(var(--step) * 3), calc(var(--step) * 3)); }
 
 /* Tile colors (kept) */
-.tile.tile-2 .tile-inner {
-  background: #fff;
-}
-
-.tile.tile-4 .tile-inner {
-  background: #eeeaf1;
-}
-
-.tile.tile-8 .tile-inner {
-  background: #ddd5e3;
-  color: #fff;
-}
-
-.tile.tile-16 .tile-inner {
-  background: #ccc0d5;
-  color: #fff;
-}
-
-.tile.tile-32 .tile-inner {
-  background: #bcabc7;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .07937), inset 0 0 0 1px rgba(255, 255, 255, .04762);
-}
-
-.tile.tile-64 .tile-inner {
-  background: #ab96b9;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .15873), inset 0 0 0 1px rgba(255, 255, 255, .09524);
-}
-
-.tile.tile-128 .tile-inner {
-  background: #9a81ab;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .2381), inset 0 0 0 1px rgba(255, 255, 255, .14286);
-  font-size: 45px;
-}
-
-.tile.tile-256 .tile-inner {
-  background: #8a6c9d;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .31746), inset 0 0 0 1px rgba(255, 255, 255, .19048);
-  font-size: 45px;
-}
-
-.tile.tile-512 .tile-inner {
-  background: #79578f;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .39683), inset 0 0 0 1px rgba(255, 255, 255, .2381);
-  font-size: 45px;
-}
-
-.tile.tile-1024 .tile-inner {
-  background: #684281;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .47619), inset 0 0 0 1px rgba(255, 255, 255, .28571);
-  font-size: 35px;
-}
-
-.tile.tile-2048 .tile-inner {
-  background: #582e74;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .55556), inset 0 0 0 1px rgba(255, 255, 255, .33333);
-  font-size: 35px;
-}
-
-.tile.tile-4096 .tile-inner {
-  background: #582e74;
-  color: #fff;
-  box-shadow: 0 0 30px 10px rgba(0, 0, 255, .55556), inset 0 0 0 1px rgba(255, 255, 255, .33333);
-  font-size: 35px;
-}
+.tile.tile-2 .tile-inner { background: #fff; }
+.tile.tile-4 .tile-inner { background: #eeeaf1; }
+.tile.tile-8 .tile-inner { background: #ddd5e3; color: #fff; }
+.tile.tile-16 .tile-inner { background: #ccc0d5; color: #fff; }
+.tile.tile-32 .tile-inner { background: #bcabc7; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .07937), inset 0 0 0 1px rgba(255, 255, 255, .04762); }
+.tile.tile-64 .tile-inner { background: #ab96b9; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .15873), inset 0 0 0 1px rgba(255, 255, 255, .09524); }
+.tile.tile-128 .tile-inner { background: #9a81ab; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .2381), inset 0 0 0 1px rgba(255, 255, 255, .14286); font-size: 45px; }
+.tile.tile-256 .tile-inner { background: #8a6c9d; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .31746), inset 0 0 0 1px rgba(255, 255, 255, .19048); font-size: 45px; }
+.tile.tile-512 .tile-inner { background: #79578f; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .39683), inset 0 0 0 1px rgba(255, 255, 255, .2381); font-size: 45px; }
+.tile.tile-1024 .tile-inner { background: #684281; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .47619), inset 0 0 0 1px rgba(255, 255, 255, .28571); font-size: 35px; }
+.tile.tile-2048 .tile-inner { background: #582e74; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .55556), inset 0 0 0 1px rgba(255, 255, 255, .33333); font-size: 35px; }
+.tile.tile-4096 .tile-inner { background: #582e74; color: #fff; box-shadow: 0 0 30px 10px rgba(0, 0, 255, .55556), inset 0 0 0 1px rgba(255, 255, 255, .38); font-size: 35px; }
 
 @keyframes appear {
-  from {
-    opacity: 0;
-    transform: scale(0);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes pop {
-  0% {
-    transform: scale(0);
-  }
-
-  50% {
-    transform: scale(1.2);
-  }
-
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
-.tile-new .tile-inner {
-  animation: appear 200ms ease 100ms backwards;
-}
-
-.tile-merged .tile-inner {
-  z-index: 20;
-  animation: pop 200ms ease 100ms backwards;
-}
+.tile-new .tile-inner { animation: appear 200ms ease 100ms backwards; }
+.tile-merged .tile-inner { z-index: 20; animation: pop 200ms ease 100ms backwards; }
 
 /* =========================
-   Legend (unchanged layout)
+   Legend (unchanged)
    ========================= */
-.legend-row {
-  padding: 10px 5px;
-}
-
-.legend-row::after {
-  content: "";
-  display: block;
-  clear: both;
-}
-
-.legend-row p {
-  margin-left: 93.33333px;
-  margin-top: 23.33333px;
-  text-transform: capitalize;
-}
+.legend-row { padding: 10px 5px; }
+.legend-row::after { content: ""; display: block; clear: both; }
+.legend-row p { margin-left: 93.33333px; margin-top: 23.33333px; text-transform: capitalize; }
 
 .legend-grid {
   position: relative;
@@ -632,84 +468,25 @@ h1.title small {
   background: rgba(255, 255, 255, 0.35);
 }
 
-.legend-cell img {
-  width: 100%;
-  height: 100%;
-}
+.legend-cell img { width: 100%; height: 100%; }
 
-/* Legend cell colors (kept) */
-.cell-2 {
-  background: #fff;
-}
-
-.cell-4 {
-  background: #eeeaf1;
-}
-
-.cell-8 {
-  background: #ddd5e3;
-  color: #fff;
-}
-
-.cell-16 {
-  background: #ccc0d5;
-  color: #fff;
-}
-
-.cell-32 {
-  background: #bcabc7;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .04762);
-}
-
-.cell-64 {
-  background: #ab96b9;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .09524);
-}
-
-.cell-128 {
-  background: #9a81ab;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .14286);
-}
-
-.cell-256 {
-  background: #8a6c9d;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .19048);
-}
-
-.cell-512 {
-  background: #79578f;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .2381);
-}
-
-.cell-1024 {
-  background: #684281;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .28571);
-}
-
-.cell-2048 {
-  background: #582e74;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .33333);
-}
-
-.cell-4096 {
-  background: #582e74;
-  color: #fff;
-  box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .38);
-}
+.cell-2 { background: #fff; }
+.cell-4 { background: #eeeaf1; }
+.cell-8 { background: #ddd5e3; color: #fff; }
+.cell-16 { background: #ccc0d5; color: #fff; }
+.cell-32 { background: #bcabc7; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .04762); }
+.cell-64 { background: #ab96b9; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .09524); }
+.cell-128 { background: #9a81ab; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .14286); }
+.cell-256 { background: #8a6c9d; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .19048); }
+.cell-512 { background: #79578f; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .2381); }
+.cell-1024 { background: #684281; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .28571); }
+.cell-2048 { background: #582e74; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .33333); }
+.cell-4096 { background: #582e74; color: #fff; box-shadow: 0 0 30px 5px #964B00, 0 0 0 1px rgba(255, 255, 255, .38); }
 
 /* =========================
    Leaderboard modal
    ========================= */
-.leaderboard-panel[hidden] {
-  display: none !important;
-}
+.leaderboard-panel[hidden] { display: none !important; }
 
 .leaderboard-panel {
   position: fixed;
@@ -750,173 +527,84 @@ h1.title small {
 }
 
 /* =========================
-   Mobile: sidebar goes under board
+   Mobile: web look, scaled
    ========================= */
-@media screen and (max-width: 520px) {
+@media (max-width: 620px) {
+  :root {
+    --board: min(500px, calc(100vw - 32px));
+    --pad: 12px;
+    --gap: 12px;
 
-  html,
-  body {
-    font-size: 15px;
+    --cell: calc((var(--board) - (2 * var(--pad)) - ((var(--grid) - 1) * var(--gap))) / var(--grid));
+    --step: calc(var(--cell) + var(--gap));
   }
 
-  body {
-    margin: 20px 0;
-    padding: 0 20px;
+  html, body { font-size: 15px; }
+  body { padding: 16px 0; }
+
+  .container,
+  .above-game,
+  .game-row,
+  .bottom-stats {
+    width: var(--board);
   }
 
-  .container {
-    width: 280px;
+  .title-wrap {
+    width: 100%;
+    max-width: var(--board);
   }
 
-  .above-game {
-    width: 280px;
-    height: 40px;
+  .title-image {
+    width: min(570px, 100%);
+    top: -6px;
   }
 
-  /* board is 280 on your mobile rules */
-  .game-row {
-    width: 280px;
+  .crown-hitbox {
+    left: 18%;
+    top: 10%;
+    width: 34%;
+    height: 34%;
   }
 
-  /* move sidebar below board on mobile */
+  h1.title {
+    font-size: clamp(34px, 9vw, 56px);
+    margin-top: 10px;
+  }
+
+  h1.title small {
+    font-size: clamp(28px, 7.5vw, 44px);
+  }
+
+  .play-area {
+    margin-top: clamp(220px, 55vw, 387px);
+  }
+
   .side-scores {
     position: static;
-    width: 280px;
+    width: 100%;
     margin-top: 12px;
     flex-direction: row;
     justify-content: space-between;
+    gap: 12px;
   }
 
   .side-scores .score-container,
   .side-scores .best-container {
-    width: 49%;
-  }
-
-  .bottom-stats {
-    width: 280px;
-  }
-
-  h1.title {
-    font-size: 27px;
-    margin-top: 15px;
-  }
-
-  h1.title small {
-    font-size: 27px;
-  }
-
-  .game-container {
-    padding: 10px;
-    background: #f67098;
-    width: 280px;
-    height: 280px;
-  }
-
-  .grid-container {
-    top: 10px;
-    left: 10px;
-
-    display: grid;
-    grid-template-columns: repeat(4, 57.5px);
-    grid-template-rows: repeat(4, 57.5px);
-    gap: 10px;
-  }
-
-  .grid-row {
-    display: contents;
-  }
-
-  .grid-cell {
-    width: 57.5px;
-    height: 57.5px;
-    margin: 0;
-    float: none;
-  }
-
-  .tile,
-  .tile .tile-inner {
-    width: 58px;
-    height: 58px;
-    line-height: 67.5px;
-  }
-
-  /* keep your mobile transforms unchanged */
-  .tile.tile-position-1-1 {
-    transform: translate(0px, 0px);
-  }
-
-  .tile.tile-position-1-2 {
-    transform: translate(0px, 67px);
-  }
-
-  .tile.tile-position-1-3 {
-    transform: translate(0px, 135px);
-  }
-
-  .tile.tile-position-1-4 {
-    transform: translate(0px, 202px);
-  }
-
-  .tile.tile-position-2-1 {
-    transform: translate(67px, 0px);
-  }
-
-  .tile.tile-position-2-2 {
-    transform: translate(67px, 67px);
-  }
-
-  .tile.tile-position-2-3 {
-    transform: translate(67px, 135px);
-  }
-
-  .tile.tile-position-2-4 {
-    transform: translate(67px, 202px);
-  }
-
-  .tile.tile-position-3-1 {
-    transform: translate(135px, 0px);
-  }
-
-  .tile.tile-position-3-2 {
-    transform: translate(135px, 67px);
-  }
-
-  .tile.tile-position-3-3 {
-    transform: translate(135px, 135px);
-  }
-
-  .tile.tile-position-3-4 {
-    transform: translate(135px, 202px);
-  }
-
-  .tile.tile-position-4-1 {
-    transform: translate(202px, 0px);
-  }
-
-  .tile.tile-position-4-2 {
-    transform: translate(202px, 67px);
-  }
-
-  .tile.tile-position-4-3 {
-    transform: translate(202px, 135px);
-  }
-
-  .tile.tile-position-4-4 {
-    transform: translate(202px, 202px);
+    width: 50%;
   }
 
   .tile .tile-inner {
-    font-size: 35px;
+    font-size: clamp(22px, calc(var(--cell) * 0.50), 55px);
   }
 
-  .game-message p {
-    font-size: 30px !important;
-    height: 30px !important;
-    line-height: 30px !important;
-    margin-top: 90px !important;
+  .game-container .game-message p {
+    font-size: clamp(26px, 8vw, 44px);
+    height: auto;
+    line-height: 1.05;
+    margin-top: calc(var(--board) * 0.42);
   }
 
-  .game-message .lower {
-    margin-top: 30px !important;
+  .game-container .game-message .lower {
+    margin-top: 24px;
   }
 }
