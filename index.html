@@ -1,110 +1,134 @@
+<!doctype html>
+<html lang="en">
 
-<!DOCTYPE html>
-<html>
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
   <title>stinky4096</title>
 
-  	<link href="style/main.css" rel="stylesheet" type="text/css">
-	  <link rel="shortcut icon" href="favicon.ico">
-	  <link rel="apple-touch-icon" href="meta/apple-touch-icon.png">
-	  <meta name="apple-mobile-web-app-capable" content="yes">
-	
-	  <meta name="HandheldFriendly" content="True">
-	  <meta name="MobileOptimized" content="320">
-	  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1, user-scalable=no, minimal-ui">
-	  <meta name="format-detection" content="telephone=no" />
+  <link rel="stylesheet" href="style/main.css" />
+  <link rel="icon" href="img/favicon.png" />
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png" />
 </head>
+
 <body>
   <div class="container">
-    <div class="heading">
-      <h1 class="title"><small>stinky</small>4096</h1>
-      <div class="scores-container">
-        <div class="score-container">0</div>
-        <div class="best-container">0</div>
-      </div>
-		<div class="leaderboard-controls">
-  <a class="leaderboard-button">Leaderboard</a>
-</div>
 
-<div class="leaderboard-panel" hidden>
-  <div class="leaderboard-header">
-    <strong>Global Leaderboard</strong>
-    <a class="leaderboard-close">Close</a>
-  </div>
-  <div class="leaderboard-status">Loading…</div>
-  <ol class="leaderboard-list"></ol>
-</div>
-    </div>
-    <p class="game-intro">Join the numbers and get to the <strong>4096 tile!</strong></p>
-    <div class="game-container">
-      <div class="game-message">
-        <p></p>
-        <div class="lower">
-	        <a class="keep-playing-button">Keep going</a>
-          <a class="retry-button">Try again</a>
-        </div>
+    <!-- ===== HEADER ===== -->
+    <header class="heading">
+      <div class="title-wrap">
+        <img class="title-image" src="img/title.png" alt="stinky4096 title">
+        <a href="#" class="crown-hitbox" aria-label="Open leaderboard"></a>
+      </div>
+    </header>
+
+    <div class="play-area">
+      <!-- ===== CONTROLS ===== -->
+      <div class="above-game">
+        <a class="restart-button">New Game</a>
       </div>
 
-      <div class="grid-container">
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-      </div>
+      <!-- ===== BOARD + SIDE SCORES ===== -->
+      <!-- GAME BOARD -->
+      <div class="game-row">
+        <main class="game-container">
+          <div class="game-message">
+            <p></p>
+            <div class="lower">
+              <a class="keep-playing-button">Keep going</a>
+              <a class="retry-button">Try again</a>
+            </div>
+          </div>
 
-      <div class="tile-container">
+          <div class="grid-container" aria-hidden="true">
+            <div class="grid-row">
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+            </div>
+            <div class="grid-row">
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+            </div>
+            <div class="grid-row">
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+            </div>
+            <div class="grid-row">
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+              <div class="grid-cell"></div>
+            </div>
+          </div>
 
+          <div class="tile-container"></div>
+        </main>
+        <aside class="side-scores">
+          <div class="score-container">0</div>
+          <div class="best-container">0</div>
+        </aside>
       </div>
     </div>
-	<hr>
-    <p class="tile-legend"><strong class="important">Tile Legend:</strong></p>
-    <hr>
-	<p class="credits">
-      Made by Emily's rival.
-    </p>
+
+    <!-- ===== MAX EMILY (BOTTOM) ===== -->
+    <div class="bottom-stats">
+      <div class="best-points">0</div>
+    </div>
+
+    <!-- ===== LEADERBOARD MODAL ===== -->
+    <div class="leaderboard-panel" hidden>
+      <div class="leaderboard-modal">
+        <div class="leaderboard-header">
+          <strong>Leaderboard</strong>
+          <a class="leaderboard-close">Close</a>
+        </div>
+        <div class="leaderboard-status">Loading...</div>
+        <ol class="leaderboard-list"></ol>
+      </div>
+    </div>
+
+    <hr />
+
+    <section class="tile-legend">
+      <p><strong class="important">Tile Legend:</strong></p>
+    </section>
+
+    <hr />
+
+    <p class="credits">For the stinkiest of them all.</p>
   </div>
 
-	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase + leaderboard -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/leaderboard.js"></script>
+
+  <!-- Polyfills -->
+  <script src="js/bind_polyfill.js"></script>
+  <script src="js/classlist_polyfill.js"></script>
   <script src="js/animframe_polyfill.js"></script>
-  <script src="js/keyboard_input_manager.js"></script>
-  <script src="js/html_actuator.js"></script>
-  <script src="js/grid.js"></script>
-  <script src="js/tile.js"></script>
-  <script src="js/local_score_manager.js"></script>
-  <script src="js/game_manager.js"></script>
-  <script src="js/application.js"></script>
 
+  <!-- Shared helpers -->
+  <script src="js/names.js"></script>
+
+  <!-- Game -->
+  <script src="js/keyboard_input_manager.js"></script>
+<script src="js/html_actuator.js"></script>
+
+<script src="js/tile.js"></script>
+<script src="js/grid.js"></script>
+
+<script src="js/local_storage_manager.js"></script>
+<script src="js/game_manager.js"></script>
+<script src="js/application.js"></script>
 </body>
+
 </html>
